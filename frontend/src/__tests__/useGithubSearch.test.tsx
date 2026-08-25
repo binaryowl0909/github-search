@@ -50,7 +50,11 @@ describe("useGithubSearch", () => {
     expect(result.current.status).toBe("loading");
     await flushDebounce();
 
-    expect(result.current).toEqual({ status: "success", results: payload });
+    expect(result.current).toEqual({
+      status: "success",
+      results: payload,
+      searchType: "repositories",
+    });
   });
 
   it("serves a repeated term from cache without a second API call", async () => {

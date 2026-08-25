@@ -10,7 +10,7 @@ export type SearchState =
   | { status: "idle" }
   | { status: "loading" }
   | { status: "error"; message: string }
-  | { status: "success"; results: SearchResponse };
+  | { status: "success"; results: SearchResponse; searchType: SearchType };
 
 export function useGithubSearch(
   searchText: string,
@@ -28,7 +28,7 @@ export function useGithubSearch(
           const results = await searchGithub(type, text);
           cacheRef.current.set(`${type}:${text}`, results);
           if (requestId === requestIdRef.current) {
-            setState({ status: "success", results });
+            setState({ status: "success", results, searchType: type });
           }
         } catch (error) {
           if (requestId === requestIdRef.current) {
@@ -55,7 +55,7 @@ export function useGithubSearch(
     if (cached) {
       debouncedSearch.cancel();
       requestIdRef.current += 1;
-      setState({ status: "success", results: cached });
+      setState({ status: "success", results: cached, searchType });
       return;
     }
 

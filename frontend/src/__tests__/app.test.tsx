@@ -66,4 +66,29 @@ describe("App", () => {
 
     expect(document.querySelector(".app--centered")).not.toBeNull();
   });
+
+  it("does not crash when switching entity type before new results arrive", async () => {
+    vi.spyOn(client, "searchGithub").mockResolvedValue({
+      total_count: 1,
+      incomplete_results: false,
+      items: [
+        {
+          id: 1,
+          login: "octocat",
+          avatar_url: "https://example.com/a.png",
+          html_url: "https://github.com/octocat",
+          type: "User",
+        },
+      ],
+    });
+    render(<App />);
+
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "react" } });
+    await flushDebounce();
+    expect(screen.getByText("octocat")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("combobox"), { target: { value: "repositories" } });
+
+    expect(screen.getByText(/searching/i)).toBeInTheDocument();
+  });
 });

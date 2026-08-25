@@ -32,7 +32,7 @@ export default function App() {
           </p>
         )}
         {state.status === "success" && (
-          <ResultsGrid searchType={searchType} response={state.results} />
+          <ResultsGrid searchType={state.searchType} response={state.results} />
         )}
       </main>
     </div>
