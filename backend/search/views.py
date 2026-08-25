@@ -30,3 +30,12 @@ class SearchView(APIView):
 
         cache.set(cache_key, data, settings.SEARCH_CACHE_TTL)
         return Response(data)
+
+
+class ClearCacheView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def post(self, request):
+        cache.clear()
+        return Response({"detail": "Cache cleared."})
