@@ -2,6 +2,7 @@ import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useGithubSearch } from "../hooks/useGithubSearch";
 import * as client from "../api/client";
+import type { SearchType } from "../types";
 
 const payload = { total_count: 1, incomplete_results: false, items: [] };
 const flushDebounce = () => act(async () => { await vi.advanceTimersByTimeAsync(300); });
@@ -72,11 +73,11 @@ describe("useGithubSearch", () => {
     const spy = vi.spyOn(client, "searchGithub").mockResolvedValue(payload);
     const { rerender } = renderHook(
       ({ type }) => useGithubSearch("react", type),
-      { initialProps: { type: "users" as const } },
+      { initialProps: { type: "users" as SearchType } },
     );
     await flushDebounce();
 
-    rerender({ type: "repositories" as const });
+    rerender({ type: "repositories" });
     await flushDebounce();
 
     expect(spy).toHaveBeenCalledTimes(2);
