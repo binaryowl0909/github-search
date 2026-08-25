@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 .venv/
+*.sqlite3
 # Node
 node_modules/
 dist/
