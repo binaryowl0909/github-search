@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.core.cache import cache
+from drf_spectacular.utils import OpenApiExample, OpenApiResponse, extend_schema
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -11,6 +12,33 @@ class SearchView(APIView):
     authentication_classes = []
     permission_classes = []
 
+    @extend_schema(
+        summary="Search GitHub",
+        description=(
+            "Searches GitHub for users, repositories or issues. Results are "
+            "fetched from the GitHub Search API and cached in Redis for 2 hours; "
+            "an identical request within the TTL is served from cache."
+        ),
+        request=SearchRequestSerializer,
+        responses={
+            200: OpenApiResponse(description="Raw GitHub Search API payload"),
+            400: OpenApiResponse(description="Validation error"),
+            429: OpenApiResponse(description="GitHub rate limit exceeded"),
+            502: OpenApiResponse(description="GitHub upstream error"),
+        },
+        examples=[
+            OpenApiExample(
+                "Search users",
+                value={"search_type": "users", "search_text": "octocat"},
+                request_only=True,
+            ),
+            OpenApiExample(
+                "Search repositories",
+                value={"search_type": "repositories", "search_text": "react"},
+                request_only=True,
+            ),
+        ],
+    )
     def post(self, request):
         serializer = SearchRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -36,6 +64,12 @@ class ClearCacheView(APIView):
     authentication_classes = []
     permission_classes = []
 
+    @extend_schema(
+        summary="Clear the search cache",
+        description="Flushes every cached GitHub search result from Redis.",
+        request=None,
+        responses={200: OpenApiResponse(description='{"detail": "Cache cleared."}')},
+    )
     def post(self, request):
         cache.clear()
         return Response({"detail": "Cache cleared."})
